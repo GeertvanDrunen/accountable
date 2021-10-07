@@ -3,12 +3,18 @@
  */
 
 import 'react-native';
-import React from 'react';
-import App from '../App';
+import {shuffleArray} from '../src/helpers';
 
-// Note: test renderer must be required after react-native.
-import renderer from 'react-test-renderer';
+const {fetchPosts} = require('../src/api');
 
-it('renders correctly', () => {
-  renderer.create(<App />);
+test('the fetchPosts function returns an array', async () => {
+  await expect(fetchPosts()).resolves.toEqual(expect.any(Array));
+});
+
+test('the shuffleArray function returns a new array', async () => {
+  await expect(shuffleArray(['a', 'b', 'c'])).toEqual(expect.any(Array));
+});
+
+test('the shuffleArray function returns false with an error', async () => {
+  await expect(shuffleArray('test')).toBe(false);
 });
