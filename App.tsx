@@ -6,7 +6,7 @@ import FlashMessage from 'react-native-flash-message';
 import {QueryClient, QueryClientProvider} from 'react-query';
 import RootStackNavigator from './src/navigation/RootstackNavigator';
 import {Provider} from 'react-redux';
-import store from './src/store/store';
+import {store} from './src/store/store';
 
 const queryClient = new QueryClient();
 

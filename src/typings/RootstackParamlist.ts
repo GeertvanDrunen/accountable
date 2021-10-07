@@ -1,6 +1,8 @@
+import {Post} from '../api/typings';
+
 export type RootStackParamList = {
   Home: undefined;
   ItemDetails: {
-    id: number;
+    post: Post;
   };
 };

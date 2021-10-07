@@ -1,10 +1,14 @@
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 
-import React from 'react';
+import React, {useEffect} from 'react';
 import {FlatList, Pressable, Text} from 'react-native';
-import {usePostsQueryHook} from '../api/hooks';
+import {useDispatch} from 'react-redux';
+import {fetchPosts} from '../api';
 import {Post} from '../api/typings';
+import {shuffleArray} from '../helpers';
+import {useAppSelector} from '../store/hooks';
+import {setPosts} from '../store/slices/postsSlice';
 import {RootStackParamList} from '../typings/RootstackParamlist';
 
 // type-safe navigation prop
@@ -20,29 +24,51 @@ type PropsFromNavigation = {
 type Props = PropsFromNavigation & {};
 
 const Home: React.FunctionComponent<Props> = (props: Props) => {
-  const postsQuery = usePostsQueryHook();
+  const posts = useAppSelector(state => state.posts.posts);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    fetchPosts().then(response => {
+      if (response) {
+        dispatch(setPosts(response));
+      }
+    });
+  }, [dispatch]);
+
   return (
     <>
-      {!postsQuery.isLoading && !postsQuery.isFetching && postsQuery.data ? (
-        <FlatList
-          data={postsQuery.data}
-          removeClippedSubviews={true}
-          renderItem={({item}: {item: Post}) => {
-            return (
-              <Pressable
-                onPress={() => {
-                  props.navigation.navigate('ItemDetails', {
-                    id: item.id,
-                  });
-                }}>
-                <Text>{item.title}</Text>
-              </Pressable>
-            );
-          }}
-        />
-      ) : (
-        <Text>Could not fetch data</Text>
-      )}
+      <FlatList
+        data={posts}
+        removeClippedSubviews={true}
+        keyExtractor={(post, index) => String(post.title + index)}
+        ListHeaderComponent={() => {
+          return (
+            <Pressable
+              style={{
+                marginBottom: 30,
+              }}
+              onPress={() => {
+                dispatch(setPosts(shuffleArray(posts)));
+              }}>
+              <Text>shuffle list</Text>
+            </Pressable>
+          );
+        }}
+        renderItem={({item}: {item: Post}) => {
+          return (
+            <Pressable
+              style={{marginBottom: 10}}
+              onPress={() => {
+                props.navigation.navigate('ItemDetails', {
+                  post: item,
+                });
+              }}>
+              <Text>{item.title}</Text>
+            </Pressable>
+          );
+        }}
+      />
     </>
   );
 };
